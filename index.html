@@ -1,0 +1,367 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Halvzies — Split Costco runs with neighbors</title>
+<meta name="description" content="Halvzies pairs you with neighbors at your Costco to split bulk packs. Half the haul, half the cost, none of the waste.">
+<meta property="og:title" content="Halvzies — Split Costco runs with neighbors">
+<meta property="og:description" content="Buy the big pack. Take half. Halvzies matches you with neighbors at your Costco.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://halvzies.com">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛒</text></svg>">
+<style>
+  :root {
+    --ink: #2a262e;
+    --ink-soft: #57505e;
+    --cream: #fdf7ec;
+    --cream-deep: #f7ebd7;
+    --terra: #c7502b;
+    --accent: #db6437;
+    --honey: #e8b548;
+    --moss: #5f7f3c;
+    --sky: #6fa8dc;
+    --card: #ffffff;
+  }
+
+  * { box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    margin: 0;
+    background: linear-gradient(180deg, #fff3dd 0%, var(--cream) 32%, var(--cream) 68%, var(--cream-deep) 100%);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.6;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .rounded { font-family: ui-rounded, "SF Pro Rounded", -apple-system, sans-serif; }
+
+  /* ---------- floating parallax layer ---------- */
+  .float-layer {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+  .floaty {
+    position: absolute;
+    font-size: 46px;
+    opacity: 0.5;
+    filter: saturate(0.92);
+    will-change: transform;
+    user-select: none;
+  }
+  .floaty.big { font-size: 72px; opacity: 0.38; }
+  .floaty.small { font-size: 32px; opacity: 0.55; }
+
+  main { position: relative; z-index: 1; }
+
+  /* ---------- hero ---------- */
+  .hero {
+    min-height: 92vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 90px 24px 60px;
+  }
+  .hero .brand {
+    font-family: ui-rounded, "SF Pro Rounded", -apple-system, sans-serif;
+    font-weight: 800;
+    font-size: 1.25rem;
+    letter-spacing: 0.01em;
+    color: var(--terra);
+    margin-bottom: 22px;
+  }
+  .hero h1 {
+    font-family: ui-rounded, "SF Pro Rounded", -apple-system, sans-serif;
+    font-size: clamp(2.6rem, 7.5vw, 5rem);
+    font-weight: 800;
+    line-height: 1.04;
+    letter-spacing: -0.025em;
+    margin: 0 0 20px;
+    max-width: 15ch;
+    text-wrap: balance;
+  }
+  .hero h1 .half {
+    color: var(--accent);
+    position: relative;
+    white-space: nowrap;
+  }
+  .hero p.sub {
+    font-size: clamp(1.05rem, 2.4vw, 1.3rem);
+    color: var(--ink-soft);
+    max-width: 44ch;
+    margin: 0 0 36px;
+  }
+  .cta {
+    display: inline-block;
+    font-family: ui-rounded, "SF Pro Rounded", -apple-system, sans-serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #fff;
+    background: linear-gradient(120deg, var(--accent), var(--terra));
+    padding: 17px 36px;
+    border-radius: 999px;
+    text-decoration: none;
+    box-shadow: 0 10px 30px rgba(219, 100, 55, 0.35);
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+  }
+  .cta:hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 14px 36px rgba(219, 100, 55, 0.42); }
+  .cta:active { transform: translateY(0) scale(0.99); }
+  .cta-note { font-size: 0.85rem; color: var(--ink-soft); margin-top: 14px; }
+
+  .scroll-hint {
+    margin-top: 56px;
+    font-size: 1.6rem;
+    animation: bob 1.8s ease-in-out infinite;
+    opacity: 0.5;
+  }
+  @keyframes bob {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(8px); }
+  }
+
+  /* ---------- sections ---------- */
+  section { padding: 90px 24px; max-width: 1020px; margin: 0 auto; }
+
+  .kicker {
+    font-size: 0.8rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--terra);
+    text-align: center;
+    margin: 0 0 8px;
+  }
+  h2 {
+    font-family: ui-rounded, "SF Pro Rounded", -apple-system, sans-serif;
+    font-size: clamp(1.8rem, 4.5vw, 2.6rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    text-align: center;
+    margin: 0 0 48px;
+    text-wrap: balance;
+  }
+
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 20px;
+  }
+  .step {
+    background: var(--card);
+    border-radius: 26px;
+    padding: 34px 28px;
+    text-align: center;
+    box-shadow: 0 2px 0 rgba(42,38,46,0.04), 0 16px 40px rgba(199, 80, 43, 0.07);
+  }
+  .step .emoji { font-size: 52px; display: block; margin-bottom: 14px; }
+  .step h3 {
+    font-family: ui-rounded, "SF Pro Rounded", -apple-system, sans-serif;
+    font-size: 1.25rem;
+    font-weight: 800;
+    margin: 0 0 8px;
+  }
+  .step p { color: var(--ink-soft); font-size: 0.98rem; margin: 0; }
+
+  /* reveal on scroll */
+  .reveal {
+    opacity: 0;
+    transform: translateY(26px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .reveal.shown { opacity: 1; transform: none; }
+  .reveal:nth-child(2) { transition-delay: 0.08s; }
+  .reveal:nth-child(3) { transition-delay: 0.16s; }
+
+  /* ---------- made-for chips ---------- */
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+    max-width: 760px;
+    margin: 0 auto;
+  }
+  .chip {
+    background: var(--card);
+    border-radius: 999px;
+    padding: 12px 22px;
+    font-weight: 600;
+    font-size: 0.98rem;
+    box-shadow: 0 1px 0 rgba(42,38,46,0.05);
+  }
+  .chip span { margin-right: 8px; }
+
+  /* ---------- privacy strip ---------- */
+  .privacy {
+    background: var(--ink);
+    color: #f6efe2;
+    border-radius: 32px;
+    padding: 56px 40px;
+    text-align: center;
+    max-width: 860px;
+    margin: 0 auto;
+  }
+  .privacy h2 { color: #fff; margin-bottom: 18px; }
+  .privacy p { max-width: 52ch; margin: 0 auto 8px; color: rgba(246, 239, 226, 0.85); }
+  .privacy .no-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 26px;
+  }
+  .privacy .no {
+    border: 1.5px solid rgba(246, 239, 226, 0.35);
+    border-radius: 999px;
+    padding: 8px 18px;
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+
+  /* ---------- footer ---------- */
+  footer {
+    text-align: center;
+    padding: 70px 24px 46px;
+    color: var(--ink-soft);
+    font-size: 0.92rem;
+  }
+  footer a { color: var(--terra); text-decoration: none; font-weight: 600; }
+  footer a:hover { text-decoration: underline; }
+  footer .links { display: flex; justify-content: center; gap: 22px; margin-bottom: 16px; flex-wrap: wrap; }
+  footer .basket { font-size: 2rem; display: block; margin-bottom: 12px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .floaty { display: none; }
+    .scroll-hint { animation: none; }
+    .reveal { opacity: 1; transform: none; transition: none; }
+    html { scroll-behavior: auto; }
+  }
+</style>
+</head>
+<body>
+
+<div class="float-layer" aria-hidden="true">
+  <span class="floaty big"   data-speed="0.22" style="left: 6%;  top: 14%;">🍓</span>
+  <span class="floaty"       data-speed="0.35" style="left: 86%; top: 10%;">🧻</span>
+  <span class="floaty small" data-speed="0.5"  style="left: 74%; top: 30%;">🥑</span>
+  <span class="floaty"       data-speed="0.28" style="left: 12%; top: 46%;">🥯</span>
+  <span class="floaty big"   data-speed="0.42" style="left: 90%; top: 55%;">🧀</span>
+  <span class="floaty small" data-speed="0.6"  style="left: 4%;  top: 72%;">🫐</span>
+  <span class="floaty"       data-speed="0.33" style="left: 80%; top: 82%;">🥕</span>
+  <span class="floaty small" data-speed="0.48" style="left: 22%; top: 90%;">🍗</span>
+</div>
+
+<main>
+  <div class="hero">
+    <div class="brand rounded">🛒 Halvzies</div>
+    <h1>Buy the big pack.<br>Take <span class="half">half</span>.</h1>
+    <p class="sub">Halvzies pairs you with neighbors at your Costco to split bulk packs — half the haul, half the cost, none of the waste.</p>
+    <a class="cta" href="mailto:support@halvzies.com?subject=Halvzies%20beta&body=I%27d%20love%20to%20try%20Halvzies!%20My%20Costco%20is%3A%20">Join the beta</a>
+    <div class="cta-note">Free · iPhone · Launching first in metro Detroit</div>
+    <div class="scroll-hint">↓</div>
+  </div>
+
+  <section id="how">
+    <p class="kicker">How it works</p>
+    <h2>Three steps to never wasting<br>half a flat of strawberries again</h2>
+    <div class="steps">
+      <div class="step reveal">
+        <span class="emoji">📝</span>
+        <h3>Post it</h3>
+        <p>Heading to Costco? Post what you're buying and when. Snap a photo or scan the barcode — done in under a minute.</p>
+      </div>
+      <div class="step reveal">
+        <span class="emoji">🤝</span>
+        <h3>Match up</h3>
+        <p>Neighbors who shop at your Costco see your split and tap to join. Chat in the app to settle the details.</p>
+      </div>
+      <div class="step reveal">
+        <span class="emoji">⚖️</span>
+        <h3>Meet &amp; halve</h3>
+        <p>Meet at the store entrance (or a spot nearby), split the pack, split the receipt. Everybody wins — especially your fridge.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="who">
+    <p class="kicker">Made for</p>
+    <h2>Anyone who's ever thought<br>"I'd buy it if someone wanted half"</h2>
+    <div class="chips">
+      <div class="chip"><span>🏠</span>Solo households</div>
+      <div class="chip"><span>👶</span>One pack of diapers, not two</div>
+      <div class="chip"><span>🍳</span>Sunday meal preppers</div>
+      <div class="chip"><span>🐕</span>Pet-food case splitters</div>
+      <div class="chip"><span>🥬</span>Produce that never survives the week</div>
+      <div class="chip"><span>❄️</span>Freezers with limited real estate</div>
+    </div>
+  </section>
+
+  <section id="privacy-section">
+    <div class="privacy">
+      <h2 class="rounded">Private by design</h2>
+      <p>Your neighborhood and your Costco — that's all other members ever see. No exact addresses, no phone numbers, no ad trackers, no data resale.</p>
+      <div class="no-list">
+        <span class="no">No ads</span>
+        <span class="no">No trackers</span>
+        <span class="no">No subscriptions</span>
+        <span class="no">Delete anytime, in-app</span>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <span class="basket">🛒</span>
+    <div class="links">
+      <a href="https://jordangoody.github.io/halvzies-legal/privacy/">Privacy Policy</a>
+      <a href="https://jordangoody.github.io/halvzies-legal/terms/">Terms of Service</a>
+      <a href="mailto:support@halvzies.com">support@halvzies.com</a>
+    </div>
+    <div>© 2026 Halvzies. Made by neighbors who got tired of wasting food.</div>
+  </footer>
+</main>
+
+<script>
+(function () {
+  var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // Parallax: floaters drift upward at different rates as you scroll.
+  if (!reduced) {
+    var floaters = Array.prototype.slice.call(document.querySelectorAll(".floaty"));
+    var ticking = false;
+    function update() {
+      var y = window.scrollY;
+      floaters.forEach(function (el) {
+        var speed = parseFloat(el.dataset.speed || "0.3");
+        el.style.transform = "translate3d(0," + (-y * speed) + "px,0) rotate(" + (y * speed * 0.04) + "deg)";
+      });
+      ticking = false;
+    }
+    window.addEventListener("scroll", function () {
+      if (!ticking) { requestAnimationFrame(update); ticking = true; }
+    }, { passive: true });
+    update();
+  }
+
+  // Reveal-on-scroll for the step cards.
+  var observer = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add("shown");
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.25 });
+  document.querySelectorAll(".reveal").forEach(function (el) { observer.observe(el); });
+})();
+</script>
+</body>
+</html>
